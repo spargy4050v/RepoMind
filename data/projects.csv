@@ -1,0 +1,16 @@
+project_id,state,district,project_type,sanction_amount,estimated_cost,actual_cost,completion_days,payment_days,contractor_projects
+P001,Telangana,Hyderabad,Road,4500000,4400000,4450000,120,15,2
+P002,Telangana,Warangal,Water Supply,5000000,4900000,4950000,150,20,3
+P003,Telangana,Nalgonda,School,3500000,3400000,3450000,100,12,1
+P004,Telangana,Karimnagar,Health Centre,4000000,3900000,3980000,130,18,2
+P005,Telangana,Khammam,Road,4800000,4600000,4700000,140,17,2
+P006,Telangana,Hyderabad,Road,5000000,4500000,7200000,310,90,12
+P007,Telangana,Warangal,School,4200000,4000000,6800000,280,75,10
+P008,Telangana,Nalgonda,Water Supply,3500000,3400000,3600000,110,15,2
+P009,Telangana,Karimnagar,Road,4600000,4500000,4550000,125,14,2
+P010,Telangana,Khammam,Health Centre,3900000,3800000,3850000,115,16,1
+P011,Telangana,Hyderabad,School,4500000,4300000,6900000,300,85,15
+P012,Telangana,Warangal,Road,4900000,4700000,4800000,135,20,3
+P013,Telangana,Nalgonda,Health Centre,4000000,3900000,4100000,145,22,4
+P014,Telangana,Karimnagar,Water Supply,3600000,3500000,3550000,105,13,2
+P015,Telangana,Khammam,Road,5000000,4600000,7600000,330,100,18
