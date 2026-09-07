@@ -25,6 +25,7 @@ import uuid
 import json
 import csv
 from datetime import date, timedelta
+from pathlib import Path
 
 random.seed(42)
 
@@ -163,11 +164,9 @@ def generate_projects(n=3000, contractors=None):
 
 if __name__ == "__main__":
     projects = generate_projects(n=3000)
+    output_path = Path(__file__).with_name("mplad_projects.csv")
 
-    with open("mplad_projects.json", "w") as f:
-        json.dump(projects, f, indent=2)
-
-    with open("mplad_projects.csv", "w", newline="") as f:
+    with output_path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=projects[0].keys())
         writer.writeheader()
         writer.writerows(projects)

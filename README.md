@@ -1,48 +1,48 @@
 # MPLAD Trace
-AI-powered anomaly/fraud detection for MPLAD scheme implementation — SIH26102.
 
-## What this is
-Ingests MPLAD project records (cost, timeline, contractor, location) and produces
-an explainable risk score per project — not a black-box label. See `BUILD_PLAN.md`
-for the full module-by-module build spec.
+AI-powered anomaly/fraud detection for MPLAD scheme implementation (SIH26102).
+The detailed project dataset is calibrated **synthetic** Tier 2 data, not government transaction data.
 
-## Repo layout
+## Authoritative structure
+
 ```
-data/          Synthetic dataset generator + output CSV/JSON
+data/
+  generate_dataset.py
+  mplad_projects.csv
 backend/
-  ml/          Feature engineering + Isolation Forest scoring engine
-  api/         FastAPI service exposing scored data
-frontend/      React + Vite + Tailwind dashboard
-docs/          API contract, coding conventions, agent context
-tests/         Cross-cutting test scripts (precision/recall checks, API tests)
+  requirements.txt
+  schema.sql
+  ml/features.py
+docs/
+  API_CONTRACT.md
+  DATA_STRATEGY.md
+  PROBLEM_STATEMENT.md
+tests/
+  test_module1_and_module2.py
 ```
 
-## Setup
-```bash
-# 0. Database (Postgres + PostGIS)
+Postgres + PostGIS is the production database design. `backend/schema.sql` defines
+Tier 1 real public aggregate data and Tier 2 synthetic project data separately.
+
+## Current setup (Modules 1 and 2 only)
+
+```powershell
+python data/generate_dataset.py
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install -r backend/requirements.txt
+python -m pytest -q
+```
+
+For production spatial-density validation, initialize Postgres with PostGIS:
+
+```powershell
 createdb mplad_trace
 psql mplad_trace -f backend/schema.sql
-
-# 1. Generate synthetic Tier 2 data, load Tier 1 real data
-cd data && python3 generate_dataset.py
-# (Tier 1: pull real MPLADS aggregate datasets per docs/DATA_STRATEGY.md and load into mp_fund_summary)
-
-# 2. Backend
-cd backend && python3 -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-uvicorn api.main:app --reload   # http://localhost:8000/docs
-
-# 3. Frontend
-cd frontend && npm install && npm run dev   # http://localhost:5173
 ```
 
-See `docs/DATA_STRATEGY.md` for the real-vs-synthetic data design, and
-`docs/PROBLEM_STATEMENT.md` for the full problem + solution write-up.
+The Module 2 CSV test path uses an exact great-circle 2km fallback so it can
+run offline before ingestion; production density uses PostGIS `ST_DWithin`.
 
-## Build order
-Follow `BUILD_PLAN.md` strictly in module order. Do not start a module until
-the previous one's test checklist in that doc is fully checked off — this
-matters most for Module 3 (scoring engine), which everything else depends on.
-
-## Status
-See `PROGRESS.md` for current module status.
+Follow `BUILD_PLAN.md` and `PROGRESS.md` strictly. Scoring, API, and frontend
+modules have not been started.

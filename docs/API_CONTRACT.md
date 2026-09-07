@@ -52,8 +52,7 @@ Response: all raw project fields + full scoring detail
   "start_date": "2022-09-27",
   "completion_certified_date": "2023-11-30",
   "fund_release_date": "2023-12-18",
-  "latitude": 17.4774,
-  "longitude": 78.7046,
+  "location": {"type": "Point", "coordinates": [78.7046, 17.4774]},
   "risk_score": 87,
   "reasons": [
     {"code": "cost_inflation", "text": "Cost exceeds regional baseline by 112% (₹1.12Cr vs ₹52.8L expected)"}
