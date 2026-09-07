@@ -28,19 +28,17 @@ MPLAD Trace is an SIH 2026 explainable fraud/anomaly-detection project for MPLAD
 
 - `backend/schema.sql` contains the Postgres + PostGIS two-tier schema and production `ST_DWithin` density design.
 - The CSV-only feature test path uses an exact great-circle 2km fallback with equivalent inclusion/exclusion semantics. It is explicitly not the production implementation.
-- Blocker: `psql`/a Postgres + PostGIS instance is unavailable in the current environment, so production spatial integration has not been executed.
+- Verified on 2026-09-07 with a local PostGIS 3.4.3 container: schema applied, all 3,000 projects loaded, and `build_feature_matrix(postgis_dsn=...)` returned 3,000 finite rows through its production `ST_DWithin` query. Two density counts differ from the Haversine fallback at the radius boundary because PostGIS geography uses its geodetic distance model.
 
 ## Active module and next action
 
-`PROGRESS.md` remains unchanged: Module 2 is not yet complete because its PostGIS checklist item is unverified. Module 3, FastAPI, and frontend work have not started.
+Module 2 is complete. Module 3 is now the active module; FastAPI and frontend work have not started.
 
 Next permitted work:
 
-1. Provision local Postgres with PostGIS and apply `backend/schema.sql`.
-2. Ingest the synthetic CSV into `projects`, constructing the `location` geography from CSV coordinates.
-3. Run `build_feature_matrix(..., postgis_dsn=...)` and verify its `ST_DWithin` density query.
-4. Update Module 2 checklist and `PROGRESS.md` only after that verification succeeds.
-5. Then review and execute the pending Module 3 scorer brief; it requires adding scikit-learn and must preserve the evaluation-label isolation rule.
+1. Implement the Module 3 scorer with Isolation Forest and explainable rules.
+2. Add scorer tests, including precision-at-top-20% and recall checks using labels only in the test evaluation code.
+3. Record actual Module 3 metrics in `PROGRESS.md` and this file.
 
 ## Recent structural decisions
 
@@ -50,4 +48,4 @@ Next permitted work:
 
 ## Pending user instruction
 
-The latest pasted specification requests Module 3 scoring, tests, and metrics. It is retained as intent but is blocked by the active Module 2 PostGIS validation requirement above.
+The latest pasted specification requests Module 3 scoring, tests, and metrics. It is now authorized because Module 2's PostGIS validation is complete.

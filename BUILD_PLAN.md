@@ -34,7 +34,7 @@ Output: `data/generate_dataset.py` and `data/mplad_projects.csv`.
 - [x] Its hidden evaluation-label anomaly rate is 19.0%.
 - [x] `_ground_truth_*` columns are retained only for evaluation.
 
-## Module 2: Feature Engineering - current module
+## Module 2: Feature Engineering - done
 
 Output: `backend/ml/features.py`.
 
@@ -50,10 +50,10 @@ It returns `project_id` plus exactly these seven numerical features:
 
 Checklist:
 
-- [ ] Full dataset run produces finite values for all 3,000 rows, including safe handling of invalid dates, missing values, zero baselines, and infinity.
-- [ ] Known `cost_inflation` records have `cost_ratio > 1.8`; known `payment_timing` records have negative `payment_gap_days`.
-- [ ] The matrix contains no `_ground_truth_*` columns.
-- [ ] The production `ST_DWithin` query has been verified against an available Postgres + PostGIS instance. The exact-distance CSV fallback is offline test support only.
+- [x] Full dataset run produces finite values for all 3,000 rows, including safe handling of invalid dates, missing values, zero baselines, and infinity.
+- [x] Known `cost_inflation` records have `cost_ratio > 1.8`; known `payment_timing` records have negative `payment_gap_days`.
+- [x] The matrix contains no `_ground_truth_*` columns.
+- [x] The production `ST_DWithin` query was verified against a local Postgres + PostGIS instance. The exact-distance CSV fallback is offline test support only.
 
 ## Module 3: Anomaly Scoring Engine - not started
 
