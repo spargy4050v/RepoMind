@@ -55,13 +55,26 @@ Checklist:
 - [x] The matrix contains no `_ground_truth_*` columns.
 - [x] The production `ST_DWithin` query was verified against a local Postgres + PostGIS instance. The exact-distance CSV fallback is offline test support only.
 
-## Module 3: Anomaly Scoring Engine - not started
+## Module 3: Anomaly Scoring Engine - in progress
 
-Future output: `backend/ml/scorer.py`. It will use the seven-feature matrix and must produce a 0-100 score plus specific human-readable reasons. It must never use ground-truth fields as inputs.
+Output: `backend/ml/scorer.py`. It uses the seven-feature matrix and produces a 0-100 score plus specific human-readable reasons. It must never use ground-truth fields as inputs.
 
-## Module 4: FastAPI Service - not started
+Checklist:
 
-Future output: `backend/api/main.py`, following `docs/API_CONTRACT.md`.
+- [x] The deterministic local Isolation Forest consumes exactly the seven Module 2 features.
+- [x] Every project has a bounded 0-100 score and a non-empty human-readable reason list.
+- [x] Hidden labels are used only after scoring to verify precision-at-top-20% >= 75% and recall-at-top-20% >= 80% (79.17% precision; 83.33% recall).
+
+## Module 4: FastAPI Service - done
+
+Output: `backend/api/main.py`, following `docs/API_CONTRACT.md`.
+
+Checklist:
+
+- [x] The local API reads only calibrated synthetic Tier 2 project data and never exposes `_ground_truth_*` fields.
+- [x] Paginated project list, project detail, contractor, summary, and rescan endpoints conform to the documented shapes.
+- [x] Scores always include coded human-readable reasons; request-validation and not-found errors use the shared error shape.
+- [x] API contract tests pass locally.
 
 ## Modules 5-7: Dashboard, detail view, contractor view - not started
 

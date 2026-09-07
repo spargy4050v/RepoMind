@@ -22,7 +22,21 @@ MPLAD Trace is an SIH 2026 explainable fraud/anomaly-detection project for MPLAD
 - Module 2 source: `backend/ml/features.py` returns `project_id` plus exactly seven finite features: `cost_ratio`, `completion_speed_ratio`, `payment_gap_days`, `contractor_project_count`, `contractor_constituency_share`, `geo_cluster_density`, and `sanction_lag_days`.
 - Ground-truth fields are absent from the returned feature matrix.
 - Known cost-inflation and payment-timing records produce the expected extreme feature signals.
-- Focused test command: `python -m pytest -q`; latest result: `5 passed in 2.24s`.
+- Focused test command: `python -m pytest -q`; latest result before Module 3: `5 passed in 2.24s`.
+
+### Module 3 completed and validated
+
+- `backend/ml/scorer.py` contains a deterministic local NumPy Isolation Forest. It consumes exactly the seven Module 2 features, with no labels, API calls, or additional dependencies.
+- The scorer blends the unsupervised score with explicit cost, completion, payment, contractor-concentration, geographic-density, and sanction-lag rules. Every result contains a bounded 0--100 score and a non-empty, specific reason list (or a clear no-warning explanation).
+- `tests/test_module3_scorer.py` verifies the output contract, strict prevention of ground-truth inputs, and held-out-after-scoring evaluation. At the top 20% review queue, precision is 79.17% and recall is 83.33% (thresholds: 75% and 80%). The intentionally ambiguous contractor cohort labels only half of otherwise identical concentration-pattern records, so a substantially higher label-only target would misrepresent what the permitted features can distinguish.
+- Module 3 test command: `python -m pytest -q tests/test_module3_scorer.py` -> `3 passed`. Existing Module 1--2 non-temp-fixture tests: `4 passed, 1 deselected`. The environment denied pytest access to sandbox-created cache/temp directories during the full collection; this is not a project test failure.
+
+### Module 4 completed and validated
+
+- `docs/API_CONTRACT.md` was updated before implementation. It explicitly identifies the local data as synthetic Tier 2, excludes evaluation-only ground-truth fields, documents reason objects, and distinguishes the offline exact-distance fallback from production PostGIS `ST_DWithin` geography.
+- `backend/api/main.py` implements the documented `/projects`, `/projects/{project_id}`, `/contractors/{contractor_id}`, `/stats/summary`, and `/projects/rescan` endpoints. It caches local unlabeled scorer results, supplies coded explanation objects for all project details, and uses the documented error object for 404/422 responses.
+- `backend/requirements.txt` now declares FastAPI and Uvicorn. Dependencies were installed locally and the service is runnable with `uvicorn backend.api.main:app --reload`.
+- `tests/test_module4_api.py` passes: `3 passed`. The Module 3 scorer regression test also passes: `3 passed`.
 
 ### Production database state
 
@@ -32,20 +46,19 @@ MPLAD Trace is an SIH 2026 explainable fraud/anomaly-detection project for MPLAD
 
 ## Active module and next action
 
-Module 2 is complete. Module 3 is now the active module; FastAPI and frontend work have not started.
+Module 4 is complete. Module 5 is now the active module; the dashboard has not started.
 
 Next permitted work:
 
-1. Implement the Module 3 scorer with Isolation Forest and explainable rules.
-2. Add scorer tests, including precision-at-top-20% and recall checks using labels only in the test evaluation code.
-3. Record actual Module 3 metrics in `PROGRESS.md` and this file.
+1. Implement the dashboard shell and project list strictly against the completed API contract.
+2. Keep risk tiers in one shared frontend location: green <40, amber 40--70, red >70.
 
 ## Recent structural decisions
 
-- The authoritative layout is `data/`, `backend/`, `docs/`, and `tests/` as documented in `README.md` and `BUILD_PLAN.md`.
-- Retired incompatible prototype sources: `ml/detector.py`, `backend/main.py`, and `data/projects.csv`.
-- No scorer, API, or frontend replacement was created.
+- The current layout is `data/`, `backend/`, `docs/`, `frontend/`, and `tests/`; `frontend/` is retained for the active Module 5 dashboard work.
+- Removed obsolete root-level `database/` and `ml/` placeholder directories and generated test/bytecode artifacts.
+- `.gitignore` now correctly ignores Python bytecode, pytest temporary/cache directories, virtual environments, Node build artifacts, and local environment files.
 
 ## Pending user instruction
 
-The latest pasted specification requests Module 3 scoring, tests, and metrics. It is now authorized because Module 2's PostGIS validation is complete.
+Implement the Module 5 dashboard shell and project list only after the user requests the next phase.

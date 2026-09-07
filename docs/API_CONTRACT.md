@@ -5,6 +5,10 @@ needs to change, then update backend + frontend code to match.
 
 Base URL (dev): `http://localhost:8000`
 
+The local development service reads the calibrated **synthetic Tier 2** CSV.
+It never returns `_ground_truth_*` evaluation fields. Production storage remains
+Postgres + PostGIS; the local CSV path exists for the offline demo only.
+
 ---
 
 ## GET /projects
@@ -36,7 +40,10 @@ Response:
 ```
 
 ## GET /projects/{project_id}
-Response: all raw project fields + full scoring detail
+Response: all displayable raw project fields (excluding `_ground_truth_*`) + full scoring detail.
+`reasons` always contains at least one item. `nearby_projects` uses the local
+exact-distance 2 km fallback in development; production uses PostGIS geography
+and `ST_DWithin`.
 ```json
 {
   "project_id": "MPLAD-00003",
@@ -86,6 +93,9 @@ Response: all raw project fields + full scoring detail
 ## POST /projects/rescan
 No body required. Re-runs scoring pipeline on current dataset.
 Response: `{"status": "ok", "rescored_count": 3000}`
+
+`rescan` rebuilds the seven-feature matrix and scorer cache from the local
+synthetic CSV. It does not read or use evaluation labels.
 
 ---
 

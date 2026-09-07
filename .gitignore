@@ -1,0 +1,24 @@
+# Python bytecode and test artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.test-tmp/
+pytest-cache-files-*/
+
+# Python environments and build metadata
+venv/
+.venv/
+*.egg-info/
+
+# Node build artifacts
+node_modules/
+dist/
+.vite/
+
+# Local configuration
+.env
+.env.local
+
+# OS files
+.DS_Store
