@@ -23,6 +23,26 @@ export interface Summary {
   avg_risk_score: number;
 }
 
+export interface Reason {
+  code: string;
+  text: string;
+}
+
+export interface ProjectDetail extends ProjectListItem {
+  units: number | null;
+  unit_type: string | null;
+  regional_baseline_cost_inr: number;
+  recommended_date: string | null;
+  sanction_date: string | null;
+  start_date: string | null;
+  completion_certified_date: string | null;
+  fund_release_date: string | null;
+  planned_duration_days: number | null;
+  location: { type: "Point"; coordinates: [number, number] };
+  reasons: Reason[];
+  nearby_projects: string[];
+}
+
 export interface ProjectFilters {
   page: number;
   pageSize: number;
@@ -59,4 +79,8 @@ export function getProjects(filters: ProjectFilters): Promise<ProjectListRespons
 
 export function getSummary(): Promise<Summary> {
   return request<Summary>("/stats/summary");
+}
+
+export function getProject(projectId: string): Promise<ProjectDetail> {
+  return request<ProjectDetail>(`/projects/${encodeURIComponent(projectId)}`);
 }
