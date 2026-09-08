@@ -55,7 +55,7 @@ Checklist:
 - [x] The matrix contains no `_ground_truth_*` columns.
 - [x] The production `ST_DWithin` query was verified against a local Postgres + PostGIS instance. The exact-distance CSV fallback is offline test support only.
 
-## Module 3: Anomaly Scoring Engine - in progress
+## Module 3: Anomaly Scoring Engine - done
 
 Output: `backend/ml/scorer.py`. It uses the seven-feature matrix and produces a 0-100 score plus specific human-readable reasons. It must never use ground-truth fields as inputs.
 
@@ -76,7 +76,16 @@ Checklist:
 - [x] Scores always include coded human-readable reasons; request-validation and not-found errors use the shared error shape.
 - [x] API contract tests pass locally.
 
-## Modules 5-7: Dashboard, detail view, contractor view - not started
+## Module 5: Dashboard Shell + Project List - done
+
+Output: `frontend/` React/Vite/Tailwind application.
+
+- [x] Dashboard summary cards read `GET /stats/summary` without changing the API contract.
+- [x] Paginated project list reads `GET /projects` with documented filters and sort controls.
+- [x] The dashboard keeps synthetic Tier 2 labelling visible and uses shared risk tiers: green <40, amber 40-70, red >70.
+- [x] `npm run build` passes.
+
+## Modules 6-7: Detail view, contractor view - not started
 
 These React/Tailwind modules begin only after the API contract is implemented and tested.
 

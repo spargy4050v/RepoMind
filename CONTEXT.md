@@ -38,6 +38,12 @@ MPLAD Trace is an SIH 2026 explainable fraud/anomaly-detection project for MPLAD
 - `backend/requirements.txt` now declares FastAPI and Uvicorn. Dependencies were installed locally and the service is runnable with `uvicorn backend.api.main:app --reload`.
 - `tests/test_module4_api.py` passes: `3 passed`. The Module 3 scorer regression test also passes: `3 passed`.
 
+### Module 5 completed and validated
+
+- `frontend/` is a React/Vite/Tailwind application that consumes only the documented local API. It provides synthetic-data labelling, portfolio summary cards, filters, sorting, pagination, and a project review list.
+- `frontend/src/risk.ts` is the single risk-tier source: green <40, amber 40--70, red >70.
+- `npm run build` completes successfully.
+
 ### Production database state
 
 - `backend/schema.sql` contains the Postgres + PostGIS two-tier schema and production `ST_DWithin` density design.
@@ -46,19 +52,19 @@ MPLAD Trace is an SIH 2026 explainable fraud/anomaly-detection project for MPLAD
 
 ## Active module and next action
 
-Module 4 is complete. Module 5 is now the active module; the dashboard has not started.
+Module 5 is complete. Module 6 is now the active module.
 
 Next permitted work:
 
-1. Implement the dashboard shell and project list strictly against the completed API contract.
-2. Keep risk tiers in one shared frontend location: green <40, amber 40--70, red >70.
+1. Implement the project-detail view against the completed API contract.
+2. Reuse the shared frontend risk tiers: green <40, amber 40--70, red >70.
 
 ## Recent structural decisions
 
-- The current layout is `data/`, `backend/`, `docs/`, `frontend/`, and `tests/`; `frontend/` is retained for the active Module 5 dashboard work.
+- The current layout is `data/`, `backend/`, `docs/`, `frontend/`, and `tests/`. `frontend/` contains the Module 5 React/Vite/Tailwind application.
 - Removed obsolete root-level `database/` and `ml/` placeholder directories and generated test/bytecode artifacts.
 - `.gitignore` now correctly ignores Python bytecode, pytest temporary/cache directories, virtual environments, Node build artifacts, and local environment files.
 
 ## Pending user instruction
 
-Implement the Module 5 dashboard shell and project list only after the user requests the next phase.
+Implement the Module 6 project detail view only after the user requests the next phase.

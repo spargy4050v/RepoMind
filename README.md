@@ -24,7 +24,7 @@ tests/
 Postgres + PostGIS is the production database design. `backend/schema.sql` defines
 Tier 1 real public aggregate data and Tier 2 synthetic project data separately.
 
-## Current setup (Modules 1--3)
+## Current setup (Modules 1--5)
 
 ```powershell
 python data/generate_dataset.py
@@ -56,3 +56,18 @@ uvicorn backend.api.main:app --reload
 The service is available at `http://localhost:8000`; interactive contract
 documentation is at `/docs`. It serves calibrated **synthetic Tier 2** project
 data and never exposes evaluation-only ground-truth fields.
+
+## Run the dashboard
+
+In a second terminal, after starting the API:
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173`. The Module 5 dashboard is a React/Vite/Tailwind
+project list with summary cards, API-backed filters, sort controls, pagination,
+and shared risk tiers. It continues to label all project-level data as
+calibrated **synthetic Tier 2** data.

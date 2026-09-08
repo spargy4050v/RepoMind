@@ -1,0 +1,118 @@
+import { useEffect, useState, type ReactNode } from "react";
+import { getProjects, getSummary, type ProjectFilters, type ProjectListResponse, type Summary } from "./api";
+import { RISK_TIERS, riskTier } from "./risk";
+
+const PAGE_SIZE = 25;
+const INITIAL_FILTERS: ProjectFilters = {
+  page: 1,
+  pageSize: PAGE_SIZE,
+  state: "",
+  workCategory: "",
+  minRisk: "",
+  sortBy: "risk_score",
+  order: "desc",
+};
+
+const currency = new Intl.NumberFormat("en-IN", {
+  style: "currency",
+  currency: "INR",
+  maximumFractionDigits: 0,
+  notation: "compact",
+});
+
+function formatAnomaly(value: string | null): string {
+  return value ? value.replace(/_/g, " ") : "No material warning";
+}
+
+export function App() {
+  const [filters, setFilters] = useState<ProjectFilters>(INITIAL_FILTERS);
+  const [projects, setProjects] = useState<ProjectListResponse | null>(null);
+  const [summary, setSummary] = useState<Summary | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError(null);
+    void getProjects(filters)
+      .then((result) => active && setProjects(result))
+      .catch((reason: unknown) => active && setError(reason instanceof Error ? reason.message : "Unable to load projects."))
+      .finally(() => active && setLoading(false));
+    return () => { active = false; };
+  }, [filters]);
+
+  useEffect(() => {
+    void getSummary().then(setSummary).catch(() => undefined);
+  }, []);
+
+  const totalPages = projects ? Math.max(1, Math.ceil(projects.total / projects.page_size)) : 1;
+  const updateFilter = <K extends keyof ProjectFilters>(key: K, value: ProjectFilters[K]) => {
+    setFilters((current) => ({ ...current, [key]: value, page: key === "page" ? Number(value) : 1 }));
+  };
+
+  return (
+    <main className="min-h-screen bg-slate-950 text-slate-100">
+      <header className="border-b border-slate-800 bg-slate-950/90">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center sm:justify-between lg:px-8">
+          <div>
+            <p className="text-xs font-semibold tracking-[0.2em] text-cyan-300">MPLAD TRACE</p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight">Project anomaly review</h1>
+          </div>
+          <p className="rounded-full bg-amber-400/10 px-3 py-1.5 text-sm text-amber-100 ring-1 ring-inset ring-amber-400/25">Synthetic Tier 2 data — demonstration only</p>
+        </div>
+      </header>
+
+      <div className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
+        <section aria-label="Portfolio summary" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Metric label="Projects monitored" value={summary?.total_projects.toLocaleString() ?? "—"} />
+          <Metric label="Flagged for review" value={summary?.total_flagged.toLocaleString() ?? "—"} tone="amber" />
+          <Metric label="Sanctioned value" value={summary ? currency.format(summary.total_sanctioned_inr) : "—"} />
+          <Metric label="Average risk score" value={summary?.avg_risk_score.toFixed(1) ?? "—"} />
+        </section>
+
+        <section className="mt-8 rounded-2xl border border-slate-800 bg-slate-900/70 shadow-2xl shadow-slate-950/20">
+          <div className="flex flex-col gap-4 border-b border-slate-800 px-5 py-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold">Prioritised projects</h2>
+              <p className="mt-1 text-sm text-slate-400">Scores are explainable review signals, not findings of wrongdoing.</p>
+            </div>
+            <div className="flex gap-2 text-xs text-slate-400">
+              {Object.entries(RISK_TIERS).map(([tier, definition]) => <span key={tier} className={`rounded-full px-2.5 py-1 ring-1 ring-inset ${definition.badgeClass}`}>{definition.label}</span>)}
+            </div>
+          </div>
+
+          <div className="grid gap-3 border-b border-slate-800 p-5 md:grid-cols-2 xl:grid-cols-5">
+            <Filter label="State"><input value={filters.state} onChange={(event) => updateFilter("state", event.target.value)} placeholder="e.g. Telangana" className="rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-cyan-400" /></Filter>
+            <Filter label="Work category"><input value={filters.workCategory} onChange={(event) => updateFilter("workCategory", event.target.value)} placeholder="e.g. Road Construction" className="rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-cyan-400" /></Filter>
+            <Filter label="Minimum risk"><input value={filters.minRisk} onChange={(event) => updateFilter("minRisk", event.target.value)} type="number" min="0" max="100" placeholder="0–100" className="rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-cyan-400" /></Filter>
+            <Filter label="Sort by"><select value={filters.sortBy} onChange={(event) => updateFilter("sortBy", event.target.value as ProjectFilters["sortBy"])} className="rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-400"><option value="risk_score">Risk score</option><option value="sanctioned_cost_inr">Sanctioned cost</option><option value="completion_certified_date">Completion date</option></select></Filter>
+            <Filter label="Order"><select value={filters.order} onChange={(event) => updateFilter("order", event.target.value as ProjectFilters["order"])} className="rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-400"><option value="desc">Highest first</option><option value="asc">Lowest first</option></select></Filter>
+          </div>
+
+          {error ? <div role="alert" className="m-5 rounded-lg border border-rose-400/30 bg-rose-400/10 p-4 text-sm text-rose-100">{error}. Start the local API with <code className="font-mono">uvicorn backend.api.main:app --reload</code> and try again.</div> : null}
+          <ProjectTable projects={projects?.results ?? []} loading={loading} />
+
+          <div className="flex flex-col gap-3 border-t border-slate-800 px-5 py-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-slate-400">{projects ? `${projects.total.toLocaleString()} matching projects · page ${projects.page} of ${totalPages}` : "Loading projects…"}</p>
+            <div className="flex gap-2"><button type="button" onClick={() => updateFilter("page", Math.max(1, filters.page - 1))} disabled={filters.page === 1 || loading} className="rounded-md border border-slate-700 px-3 py-1.5 font-medium text-slate-200 enabled:hover:border-cyan-400 enabled:hover:text-cyan-200 disabled:cursor-not-allowed disabled:opacity-40">Previous</button><button type="button" onClick={() => updateFilter("page", Math.min(totalPages, filters.page + 1))} disabled={filters.page >= totalPages || loading} className="rounded-md border border-slate-700 px-3 py-1.5 font-medium text-slate-200 enabled:hover:border-cyan-400 enabled:hover:text-cyan-200 disabled:cursor-not-allowed disabled:opacity-40">Next</button></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function Metric({ label, value, tone = "cyan" }: { label: string; value: string; tone?: "cyan" | "amber" }) {
+  return <article className="rounded-xl border border-slate-800 bg-slate-900/70 p-5"><p className="text-sm text-slate-400">{label}</p><p className={`mt-2 text-2xl font-semibold ${tone === "amber" ? "text-amber-200" : "text-cyan-100"}`}>{value}</p></article>;
+}
+
+function Filter({ label, children }: { label: string; children: ReactNode }) {
+  return <label className="grid gap-1.5 text-xs font-medium text-slate-400">{label}{children}</label>;
+}
+
+function ProjectTable({ projects, loading }: { projects: ProjectListResponse["results"]; loading: boolean }) {
+  if (loading) return <div className="p-12 text-center text-sm text-slate-400">Loading prioritised projects…</div>;
+  if (!projects.length) return <div className="p-12 text-center text-sm text-slate-400">No projects match these filters.</div>;
+  return <div className="overflow-x-auto"><table className="w-full min-w-[61.25rem] text-left text-sm"><thead className="bg-slate-900 text-xs uppercase tracking-wider text-slate-500"><tr><th className="px-5 py-3">Project</th><th className="px-5 py-3">Location / work</th><th className="px-5 py-3">Contractor</th><th className="px-5 py-3">Sanctioned</th><th className="px-5 py-3">Primary signal</th><th className="px-5 py-3 text-right">Risk</th></tr></thead><tbody className="divide-y divide-slate-800">{projects.map((project) => { const tier = riskTier(project.risk_score); return <tr key={project.project_id} className="hover:bg-slate-800/40"><td className="px-5 py-4 font-medium text-cyan-100">{project.project_id}</td><td className="px-5 py-4"><p>{project.mp_constituency}, {project.state}</p><p className="mt-1 text-xs text-slate-500">{project.work_category}</p></td><td className="px-5 py-4 font-mono text-xs text-slate-300">{project.contractor_id}</td><td className="px-5 py-4 text-slate-300">{currency.format(project.sanctioned_cost_inr)}</td><td className="px-5 py-4 capitalize text-slate-300">{formatAnomaly(project.top_anomaly_type)}</td><td className="px-5 py-4 text-right"><span className={`inline-flex rounded-full px-2.5 py-1 font-semibold ring-1 ring-inset ${RISK_TIERS[tier].badgeClass}`}>{project.risk_score.toFixed(0)} · {RISK_TIERS[tier].label}</span></td></tr>; })}</tbody></table></div>;
+}
