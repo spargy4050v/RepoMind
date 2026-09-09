@@ -106,3 +106,17 @@ Perform the Module 8 end-to-end test pass only after the user requests the next 
   seven-feature scoring path; no hidden ground-truth field may enter a response.
 - On 2026-09-10, the user requested completion of 8C, including a visible
   reviewer-confirmation screen and final validation/push.
+- On 2026-09-10, the visible 8C page title was renamed to “Upload file”.
+- On 2026-09-10, the Upload file screen was restored as a dashboard navigation
+  option; it no longer replaces the overview and other dashboard views.
+- On 2026-09-10, the user clarified that Upload file belongs on the prior Risk
+  Intelligence dashboard rather than the legacy dashboard shell.
+- On 2026-09-10, the Upload file control was positioned with the desktop Risk
+  Intelligence dashboard's sidebar options.
+- On 2026-09-10, the Upload file option was separated from detection controls,
+  and its page return action was labelled “Return to dashboard”.
+- On 2026-09-10, the upload-page return action was moved to the top-left.
+- On 2026-09-10, the return action was reduced in size to avoid overlapping
+  the upload-page heading.
+- On 2026-09-10, the user requested that the accumulated Phase 2 work be
+  committed to Git with the message “phase 2 done”.
