@@ -74,3 +74,17 @@ def test_raw_upload_reuses_training_context_for_contextual_features(tmp_path: Pa
     raw["project_id"] = "UPLOADED-CONTEXT-CHECK"
     result = score_uploaded_scheme(raw, model_path=model_path)
     assert result["verdict"] in {"Likely Fraudulent", "Suspicious", "Likely Legitimate"}
+
+
+def test_raw_upload_rejects_malformed_values_instead_of_imputing_them(tmp_path: Path) -> None:
+    """Invalid raw amounts must not become zero-valued model inputs."""
+    model_path, _ = _saved_models(tmp_path)
+    raw = load_project_data(DATASET).iloc[0].drop(labels=["_ground_truth_is_anomalous", "_ground_truth_anomaly_type"]).to_dict()
+    raw["project_id"] = "UPLOADED-MALFORMED-CHECK"
+    raw["sanctioned_cost_inr"] = "not-a-number"
+    try:
+        score_uploaded_scheme(raw, model_path=model_path)
+    except ValueError as error:
+        assert "sanctioned_cost_inr" in str(error)
+    else:
+        raise AssertionError("Malformed raw amounts must be rejected before scoring.")

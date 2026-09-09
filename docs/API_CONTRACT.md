@@ -9,6 +9,38 @@ The local development service reads the calibrated **synthetic Tier 2** CSV.
 It never returns `_ground_truth_*` evaluation fields. Production storage remains
 Postgres + PostGIS; the local CSV path exists for the offline demo only.
 
+All endpoints except `POST /auth/login` and `POST /auth/register` require `Authorization: Bearer <session-token>`. This is self-contained local account access for the hackathon build, not government SSO.
+
+## POST /auth/login
+Body: `{"username":"demo","password":"demo123"}`. Returns `{"token":"...","username":"demo"}`. `POST /auth/logout` invalidates the token.
+
+## POST /auth/register
+Body: `{"username":"reviewer","password":"at-least-8-characters"}`. Creates a local user with a salted password hash and returns `{"token":"...","username":"reviewer"}`. Usernames are unique, 3--64 characters, and contain letters, numbers, `_`, `.`, or `-`. This is local hackathon access—not government identity verification.
+
+## POST /verify/upload
+Authenticated multipart-free JSON body: one raw project object, `{"record": {...}}`, or `{"records": [...]}`. The dashboard parses CSV locally and posts its records in this shape. Each record is scored only through the existing single-record inference pipeline (with the existing trained Isolation Forest/LOF artifact), returns `risk_score` (0--100) plus non-empty coded `reasons`, and is persisted as an owned upload batch. The response includes `upload_id`, `record_count`, and either `result` (one record) or `results` (batch). Results are risk/anomaly likelihood review signals, never fraud verdicts.
+
+## GET /uploads/{upload_id}
+Returns the authenticated user's persisted upload batch: `{"upload_id":1,"created_at":"...","record_count":2,"results":[{"risk_score":20,"risk_tier":"green","reasons":[{"code":"...","text":"..."}]}]}`. Another user's upload returns 404.
+
+## GET /history
+Returns authenticated user audit entries: `[{"timestamp":"...","user":"demo","action":"upload","input_summary":"1 record","risk_score":72,"risk_tier":"red","reasons":[{"code":"...","text":"..."}],"upload_id":1}]`.
+
+## GET /analysis/portfolio
+Returns read-only Tier 2 synthetic portfolio distributions by risk tier, state, work category, contractor, and high-risk reason code (`high_risk_reason_codes`).
+
+## POST /simulate
+Authenticated what-if endpoint. Body supplies one or more of the seven documented feature values; omitted values use the current synthetic portfolio median. Returns the real scorer's `risk_score`, coded non-empty `reasons`, and `breakdown` category scores. It never persists data, retrains a model, or accepts ground-truth fields.
+
+## GET /alerts
+Returns persisted alerts seeded from current amber/red synthetic projects. Query params: `status` (`new`, `under_review`, `investigating`, `resolved`) and `search`. Each result includes `alert_id`, `project_id`, `anomaly_type`, `risk_score`, `severity`, and persisted `status`.
+
+## PATCH /alerts/{alert_id}
+Authenticated body: `{"status":"under_review"}`. Updates a persisted alert status and returns the updated alert. Valid statuses are `new`, `under_review`, `investigating`, and `resolved`.
+
+## GET /context/external-status
+Returns the availability of optional, operator-configured public aggregate-data context. It is disabled by default (`MPLAD_TRACE_EXTERNAL_CONTEXT_ENABLED=false`), needs no API key, fails gracefully offline, and is never a model input or merged with synthetic Tier 2 data.
+
 ---
 
 ## GET /projects

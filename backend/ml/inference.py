@@ -126,7 +126,12 @@ def _validate_feature_frame(features: pd.DataFrame) -> None:
 
 
 def _validate_raw_project_frame(frame: pd.DataFrame) -> None:
-    """Reject incomplete raw uploads before shared feature engineering could coerce values to defaults."""
+    """Reject malformed raw uploads before feature engineering could silently impute them.
+
+    A raw upload must be complete and parseable: invalid dates, amounts, or
+    coordinates must be reported to the user rather than becoming zero-valued
+    model features.
+    """
     required = {
         "project_id", "sanctioned_cost_inr", "regional_baseline_cost_inr", "start_date",
         "completion_certified_date", "fund_release_date", "planned_duration_days", "contractor_id",
@@ -138,6 +143,31 @@ def _validate_raw_project_frame(frame: pd.DataFrame) -> None:
     null_columns = sorted(column for column in required if frame[column].isna().any() or frame[column].astype("string").str.strip().eq("").any())
     if null_columns:
         raise ValueError(f"Raw uploaded scheme has missing values for: {', '.join(null_columns)}")
+    numeric_columns = (
+        "sanctioned_cost_inr", "regional_baseline_cost_inr", "planned_duration_days", "latitude", "longitude",
+    )
+    numeric = frame.loc[:, numeric_columns].apply(pd.to_numeric, errors="coerce")
+    invalid_numeric = [
+        column for column in numeric_columns
+        if not np.isfinite(numeric[column].to_numpy(dtype=float)).all()
+    ]
+    if invalid_numeric:
+        raise ValueError(f"Raw uploaded scheme has non-numeric or non-finite values for: {', '.join(invalid_numeric)}")
+    non_positive = [
+        column for column in ("regional_baseline_cost_inr", "planned_duration_days")
+        if (numeric[column] <= 0).any()
+    ]
+    if non_positive:
+        raise ValueError(f"Raw uploaded scheme requires positive values for: {', '.join(non_positive)}")
+    if (numeric["sanctioned_cost_inr"] < 0).any():
+        raise ValueError("Raw uploaded scheme requires a non-negative sanctioned_cost_inr")
+    if not numeric["latitude"].between(-90, 90).all() or not numeric["longitude"].between(-180, 180).all():
+        raise ValueError("Raw uploaded scheme has latitude/longitude outside valid geographic bounds")
+    date_columns = ("recommended_date", "sanction_date", "start_date", "completion_certified_date", "fund_release_date")
+    parsed_dates = frame.loc[:, date_columns].apply(pd.to_datetime, errors="coerce")
+    invalid_dates = [column for column in date_columns if parsed_dates[column].isna().any()]
+    if invalid_dates:
+        raise ValueError(f"Raw uploaded scheme has invalid dates for: {', '.join(invalid_dates)}")
 
 
 def _prepare_features(frame: pd.DataFrame, bundle: ModelBundle) -> pd.DataFrame:

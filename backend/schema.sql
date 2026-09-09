@@ -80,7 +80,7 @@ CREATE INDEX idx_projects_constituency ON projects (mp_constituency);
 
 CREATE TABLE project_scores (
     project_id VARCHAR(20) PRIMARY KEY REFERENCES projects(project_id),
-    risk_score NUMERIC(5, 2) NOT NULL,
+    risk_score NUMERIC(5, 2) NOT NULL CHECK (risk_score >= 0 AND risk_score <= 100),
     top_anomaly_type VARCHAR(30),
     scored_at TIMESTAMP DEFAULT NOW()
 );

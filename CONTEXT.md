@@ -79,3 +79,24 @@ Next permitted work:
 ## Pending user instruction
 
 Perform the Module 8 end-to-end test pass only after the user requests the next phase.
+
+## Current maintenance work
+
+- The user requested a bug-fix pass before Module 8. The duplicate root-level
+  pytest diagnostic was moved to `scripts/evaluate_anomaly_detection.py` so it
+  no longer collides with `tests/test_anomaly_detection.py` during collection.
+- Raw inference uploads now reject malformed numeric values, invalid dates, and
+  out-of-bounds coordinates instead of allowing the feature builder to impute
+  zeroes. The FastAPI service now has configurable CORS origins, and
+  `backend/load_postgis.py` loads the synthetic CSV into the documented schema.
+- Verification found an omitted `httpx` dependency required by FastAPI's test
+  client; it has been added to `backend/requirements.txt`.
+- Validation after the maintenance pass: `.venv\\Scripts\\python.exe -m pytest -q`
+  completed with `20 passed`; `npm run build` completed successfully. The
+  PostGIS loader itself requires a running local PostGIS instance and was not
+  executed against a database in this pass.
+
+## Context maintenance
+
+- On 2026-09-09, the user requested that this handoff record be updated for
+  every prompt and that completed working-tree changes be pushed to Git.

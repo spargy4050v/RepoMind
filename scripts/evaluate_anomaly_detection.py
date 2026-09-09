@@ -13,7 +13,8 @@ from pathlib import Path
 from typing import Final
 
 # Keep Matplotlib's cache in the repository output area in restricted local environments.
-os.environ.setdefault("MPLCONFIGDIR", str(Path(__file__).resolve().parent / "eval_output" / ".matplotlib"))
+ROOT: Final[Path] = Path(__file__).resolve().parents[1]
+os.environ.setdefault("MPLCONFIGDIR", str(ROOT / "eval_output" / ".matplotlib"))
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -24,7 +25,7 @@ from backend.ml.features import DATASET_PATH, FEATURE_COLUMNS, build_feature_mat
 
 
 LABEL_COLUMN: Final[str] = "_ground_truth_is_anomalous"
-OUTPUT_DIRECTORY: Final[Path] = Path(__file__).resolve().parent / "eval_output"
+OUTPUT_DIRECTORY: Final[Path] = ROOT / "eval_output"
 CONTAMINATION: Final[float] = 0.19
 N_ESTIMATORS: Final[int] = 100
 LOF_NEIGHBORS: Final[int] = 20

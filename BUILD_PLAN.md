@@ -107,6 +107,12 @@ These React/Tailwind modules begin only after the API contract is implemented an
 
 Begin only after the preceding modules pass their checklists.
 
+## User-authorized work ahead of Module 8 gate
+
+- Demo authentication, upload verification, portfolio analysis, audit history, and optional external context are being added at the user's request. They must remain local-first, preserve the seven-feature scorer contract, and must not alter Tier 2 synthetic labelling.
+- 8A currently provides a local demo session, locally audited upload/rescan review actions, explainable portfolio aggregates, and a disabled-by-default public-context availability seam. These additions do not verify or replace Module 8's formal end-to-end checklist.
+- 8B is user-authorized ahead of the gate: the Risk Intelligence Engine UI, an Isolation-Forest-backed simulation endpoint, and persisted alert workflow. It must use documented API data only and does not verify Module 8.
+
 ## Rule
 
 Do not begin a later module until the previous module's checklist is fully verified.

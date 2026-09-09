@@ -63,15 +63,30 @@ export interface ProjectFilters {
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+const TOKEN_KEY = "mplad_trace_demo_token";
 
 async function request<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`);
+  const token = localStorage.getItem(TOKEN_KEY);
+  const response = await fetch(`${API_BASE_URL}${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
   if (!response.ok) {
     const body = await response.json().catch(() => null) as { error?: string } | null;
     throw new Error(body?.error ?? `Request failed (${response.status})`);
   }
   return response.json() as Promise<T>;
 }
+
+export async function login(username: string, password: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/auth/login`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, password }) });
+  if (!response.ok) throw new Error((await response.json().catch(() => ({ error: "Invalid username or password" })) as { error: string }).error);
+  localStorage.setItem(TOKEN_KEY, (await response.json() as { token: string }).token);
+}
+export async function register(username: string, password: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/auth/register`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, password }) });
+  if (!response.ok) throw new Error((await response.json().catch(() => ({ error: "Unable to create account" })) as { error: string }).error);
+  localStorage.setItem(TOKEN_KEY, (await response.json() as { token: string }).token);
+}
+export function isAuthenticated(): boolean { return Boolean(localStorage.getItem(TOKEN_KEY)); }
+export function logout(): void { localStorage.removeItem(TOKEN_KEY); }
 
 export function getProjects(filters: ProjectFilters): Promise<ProjectListResponse> {
   const query = new URLSearchParams({
@@ -97,3 +112,20 @@ export function getProject(projectId: string): Promise<ProjectDetail> {
 export function getContractor(contractorId: string): Promise<ContractorDetail> {
   return request<ContractorDetail>(`/contractors/${encodeURIComponent(contractorId)}`);
 }
+export interface AuditEntry { timestamp: string; user: string; action: string; input_summary: string; risk_score: number | null; risk_tier: "green" | "amber" | "red" | null; reasons: Reason[]; upload_id: number | null; }
+export interface Portfolio { tiers: Record<string, number>; states: Record<string, number>; work_categories: Record<string, number>; contractors: Record<string, number>; high_risk_reason_codes: Record<string, number>; synthetic: boolean; }
+export function getHistory(): Promise<AuditEntry[]> { return request<AuditEntry[]>("/history"); }
+export function getPortfolio(): Promise<Portfolio> { return request<Portfolio>("/analysis/portfolio"); }
+export interface ExternalContextStatus { enabled: boolean; available: boolean; message: string; }
+export function getExternalContextStatus(): Promise<ExternalContextStatus> { return request<ExternalContextStatus>("/context/external-status"); }
+export interface UploadResult { risk_score: number; risk_tier: "green" | "amber" | "red"; reasons: Reason[]; }
+export interface UploadBatch { upload_id: number; record_count: number; results: UploadResult[]; message: string; }
+async function upload(payload: object): Promise<UploadBatch> { const response = await fetch(`${API_BASE_URL}/verify/upload`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem(TOKEN_KEY) ?? ""}` }, body: JSON.stringify(payload) }); if (!response.ok) throw new Error(((await response.json()) as { error?: string }).error ?? "Verification failed"); return response.json() as Promise<UploadBatch>; }
+export function verifyRecord(record: Record<string, unknown>): Promise<UploadBatch> { return upload({ record }); }
+export function verifyRecords(records: Record<string, unknown>[]): Promise<UploadBatch> { return upload({ records }); }
+export function getUpload(uploadId: number): Promise<UploadBatch & { created_at: string }> { return request<UploadBatch & { created_at: string }>(`/uploads/${uploadId}`); }
+export interface Simulation { risk_score: number; reasons: Reason[]; breakdown: Record<string, number>; }
+export interface Alert { alert_id: number; project_id: string; anomaly_type: string; risk_score: number; severity: "green" | "amber" | "red"; status: "new" | "under_review" | "investigating" | "resolved"; }
+export function simulate(values: Record<string, number>): Promise<Simulation> { return fetch(`${API_BASE_URL}/simulate`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem(TOKEN_KEY) ?? ""}` }, body: JSON.stringify(values) }).then(async response => { if (!response.ok) throw new Error(((await response.json()) as { error?: string }).error ?? "Simulation failed"); return response.json(); }); }
+export function getAlerts(status?: string): Promise<Alert[]> { return request<Alert[]>(`/alerts${status && status !== "all" ? `?status=${status}` : ""}`); }
+export function updateAlert(id: number, status: Alert["status"]): Promise<Alert> { return fetch(`${API_BASE_URL}/alerts/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem(TOKEN_KEY) ?? ""}` }, body: JSON.stringify({ status }) }).then(async response => { if (!response.ok) throw new Error(((await response.json()) as { error?: string }).error ?? "Alert update failed"); return response.json(); }); }

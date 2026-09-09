@@ -12,5 +12,7 @@ Update this after every module. Do not start a later module until the prior modu
 | 6. Project Detail View | Done | Yes | - | API-backed reason, fact, location, nearby-project, and timeline review view; `npm run build` passes. |
 | 7. Contractor Cluster View | Done | Yes | - | API-backed contractor portfolio, constituency footprint, and navigable project cluster; `npm run build` passes. |
 | 8. End-to-End Test Pass | Not started | - | - | |
+| 8A. Demo access, verification, analytics, audit history, and optional context | In progress ahead of Module 8 gate | Backend yes; UI manual pass pending | - | User-authorized; Module 8 remains formally unverified. Local demo auth, upload verification, analysis, history, and optional public-context status are implemented without model changes or required external services. |
+| 8B. Risk Intelligence Engine redesign | In progress ahead of Module 8 gate | - | - | User-authorized persistent five-view redesign with live simulator and alerts; Module 8 remains formally unverified. |
 | 9. Live Demo Moment | Not started | - | - | |
 | 10. Pitch Deck Alignment | Not started | - | - | |
