@@ -23,6 +23,12 @@ Authenticated multipart-free JSON body: one raw project object, `{"record": {...
 ## GET /uploads/{upload_id}
 Returns the authenticated user's persisted upload batch: `{"upload_id":1,"created_at":"...","record_count":2,"results":[{"risk_score":20,"risk_tier":"green","reasons":[{"code":"...","text":"..."}]}]}`. Another user's upload returns 404.
 
+## POST /upload/extract
+Authenticated multipart endpoint accepting one `.csv`, `.xlsx`, `.xls`, `.docx`, `.pdf`, `.png`, `.jpg`, or `.jpeg` file (maximum 10 MB and 10 PDF pages). It does not score. It returns normalized editable `record` fields, per-field `confidence`, and a `source` panel containing extracted text/tables. Unsupported, corrupt, or fieldless documents return the shared 422 error object. `_ground_truth_*` fields are discarded.
+
+## POST /upload/score
+Authenticated JSON body: `{"record":{...},"extraction":{"format":"pdf","confidence":{},"source":{}}}`. The confirmed record follows the existing raw-record validation and trained inference path. The response includes the persisted upload result plus deterministic `story`, actual coded `reasons`, and the retained source/confidence evidence. Optional LLM rewriting is disabled by default and is never required for this local flow.
+
 ## GET /history
 Returns authenticated user audit entries: `[{"timestamp":"...","user":"demo","action":"upload","input_summary":"1 record","risk_score":72,"risk_tier":"red","reasons":[{"code":"...","text":"..."}],"upload_id":1}]`.
 

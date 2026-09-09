@@ -100,3 +100,9 @@ Perform the Module 8 end-to-end test pass only after the user requests the next 
 
 - On 2026-09-09, the user requested that this handoff record be updated for
   every prompt and that completed working-tree changes be pushed to Git.
+- On 2026-09-09, the user authorized 8C ahead of the Module 8 gate: multi-format
+  scheme upload, editable extraction review, and deterministic evidence-backed
+  narrative output. All formats must feed the existing raw validation and
+  seven-feature scoring path; no hidden ground-truth field may enter a response.
+- On 2026-09-10, the user requested completion of 8C, including a visible
+  reviewer-confirmation screen and final validation/push.

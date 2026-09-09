@@ -22,6 +22,7 @@ from fastapi.responses import JSONResponse
 from backend.ml.features import DATASET_PATH, FEATURE_COLUMNS, build_feature_matrix
 from backend.ml.scorer import REASONS_COLUMN, RISK_SCORE_COLUMN, score_feature_matrix, score_projects
 from backend.ml.inference import score_uploaded_scheme
+from backend.ml.ingest import extract_upload
 from backend.external_context import external_context_status
 
 
@@ -420,6 +421,64 @@ def get_upload(upload_id: int, request: Request) -> dict[str, object]:
     if row is None:
         raise HTTPException(status_code=404, detail=f"Upload {upload_id} was not found")
     return {"upload_id": row[0], "created_at": row[1], "record_count": row[2], "results": json.loads(row[3])}
+
+
+def _uploaded_result(record: dict[str, object]) -> dict[str, object]:
+    """Score a reviewer-confirmed record solely through the existing inference path."""
+    inference = score_uploaded_scheme(record)
+    score = 85.0 if inference["flagged_by_both"] else 60.0 if inference["isolation_forest_flag"] or inference["lof_flag"] else 20.0
+    reasons = _reason_objects([str(text) for text in inference["reasons"]])
+    tier = "red" if score > 70 else "amber" if score >= 40 else "green"
+    return {"risk_score": score, "risk_tier": tier, "reasons": reasons, "message": "Risk/anomaly likelihood only; not a fraud verdict."}
+
+
+def _deterministic_story(record: dict[str, object], result: dict[str, object]) -> str:
+    """Create a traceable narrative from confirmed fields and actual scorer evidence."""
+    sanctioned = record.get("sanctioned_cost_inr", "unknown")
+    baseline = record.get("regional_baseline_cost_inr", "unknown")
+    evidence = "; ".join(reason["text"] for reason in result["reasons"])
+    return (f"The confirmed project was sanctioned for ₹{sanctioned} against a regional baseline of ₹{baseline}. "
+            f"Its review score is {result['risk_score']:.0f}/100 ({result['risk_tier']}). "
+            f"The existing detector's evidence is: {evidence}. This is a review signal, not a fraud verdict.")
+
+
+@app.post("/upload/extract")
+async def extract_file(request: Request) -> dict[str, object]:
+    """Extract a single file for editable review; this endpoint never scores it.
+
+    The browser posts raw file bytes with ``X-Filename`` so the local service
+    avoids a required multipart runtime dependency while retaining the same
+    one-file upload semantics.
+    """
+    filename = request.headers.get("X-Filename", "")
+    if not filename:
+        raise HTTPException(status_code=422, detail="Upload must include an X-Filename header")
+    try:
+        extracted = extract_upload(filename, await request.body())
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    return {"format": extracted.format, "record": extracted.record, "confidence": extracted.confidence, "source": extracted.source}
+
+
+@app.post("/upload/score")
+def score_extracted_upload(payload: dict[str, object], request: Request) -> dict[str, object]:
+    """Persist a confirmed extraction after the shared inference validation succeeds."""
+    record = payload.get("record")
+    extraction = payload.get("extraction", {})
+    if not isinstance(record, dict) or not isinstance(extraction, dict):
+        raise HTTPException(status_code=422, detail="Upload scoring requires a confirmed record and extraction metadata")
+    record = {str(key): value for key, value in record.items() if not str(key).startswith("_ground_truth_")}
+    try:
+        result = _uploaded_result(record)
+    except (ValueError, FileNotFoundError, TypeError) as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    created_at = datetime.now(timezone.utc).isoformat()
+    output = {**result, "story": {"deterministic": _deterministic_story(record, result), "ai_generated": False}, "evidence": {"confirmed_record": record, "confidence": extraction.get("confidence", {}), "source": extraction.get("source", {})}}
+    with _db() as connection:
+        cursor = connection.execute("INSERT INTO uploads (username, created_at, record_count, results) VALUES (?, ?, ?, ?)", (request.state.username, created_at, 1, json.dumps([output])))
+        upload_id = int(cursor.lastrowid)
+        connection.execute("INSERT INTO history (timestamp, username, action, input_summary, risk_score, risk_tier, reasons, upload_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (created_at, request.state.username, "document_upload", f"{extraction.get('format', 'document')} project record", result["risk_score"], result["risk_tier"], json.dumps(result["reasons"]), upload_id))
+    return {"upload_id": upload_id, "record_count": 1, "results": [output], "message": result["message"]}
 
 @app.post("/verify/upload")
 def verify_upload(payload: dict[str, object], request: Request) -> dict[str, object]:

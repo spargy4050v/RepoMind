@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAlerts, getPortfolio, getProject, getProjects, getSummary, simulate, updateAlert, type Alert, type Portfolio, type ProjectDetail, type ProjectListItem, type Simulation, type Summary } from "./api";
+import { extractFile, getAlerts, getPortfolio, getProject, getProjects, getSummary, scoreExtraction, simulate, updateAlert, type Alert, type Extraction, type Portfolio, type ProjectDetail, type ProjectListItem, type Simulation, type StoryBatch, type Summary } from "./api";
 import { RISK_TIERS, riskTier } from "./risk";
 
 type View = "overview" | "projects" | "analysis" | "logic" | "alerts";

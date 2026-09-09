@@ -7,6 +7,7 @@ import { ProjectDetailView } from "./ProjectDetail";
 import { ContractorView } from "./ContractorView";
 import { OperationsView } from "./OperationsView";
 import { RiskEngine } from "./RiskEngine";
+import { UploadStory } from "./UploadStory";
 import { RISK_TIERS, riskTier } from "./risk";
 
 const PAGE_SIZE = 25;
@@ -33,7 +34,7 @@ export function App() {
   const totalPages = projects ? Math.max(1, Math.ceil(projects.total / projects.page_size)) : 1;
   const update = <K extends keyof ProjectFilters>(key: K, value: ProjectFilters[K]) => setFilters((current) => ({ ...current, [key]: value, page: key === "page" ? Number(value) : 1 }));
   if (!authenticated) return <Login onSuccess={() => setAuthenticated(true)} />;
-  return <RiskEngine />;
+  return <UploadStory />;
   if (page !== "dashboard") return <OperationsView page={page} onBack={() => setPage("dashboard")} />;
   if (selectedProjectId) return <ProjectDetailView projectId={selectedProjectId} onBack={() => setSelectedProjectId(null)} onContractor={(contractorId) => { setSelectedProjectId(null); setSelectedContractorId(contractorId); }} />;
   if (selectedContractorId) return <ContractorView contractorId={selectedContractorId} onBack={() => setSelectedContractorId(null)} onProject={(projectId) => { setSelectedContractorId(null); setSelectedProjectId(projectId); }} />;

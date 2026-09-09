@@ -96,6 +96,13 @@ raw project fields required by `backend.ml.features`. Missing, non-finite, and
 malformed raw values are rejected; values outside the training range are reported as
 data-quality review reasons. This CLI runs inference only and never retrains.
 
+## Document upload review
+
+The dashboard supports CSV, Excel, DOCX, text PDF, PNG, and JPEG uploads. It
+extracts labelled fields locally for reviewer correction before scoring. For
+image OCR, install the free local Tesseract binary (for example,
+`apt-get install tesseract-ocr` on Debian/Ubuntu) as well as `pip install -r backend/requirements.txt`. Scanned PDFs also need a local Poppler installation for `pdf2image`.
+
 ## CORS for a separately hosted dashboard
 
 The Vite development server proxies API calls automatically. If the built
