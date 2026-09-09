@@ -98,6 +98,16 @@ Perform the Module 8 end-to-end test pass only after the user requests the next 
 
 ## Context maintenance
 
+- On 2026-09-10, the user requested a full frontend/backend integration and
+  end-to-end workflow verification report. `docs/END_TO_END_INTEGRATION_AUDIT.md`
+  records the static trace, repository map, technology stack, data boundaries,
+  endpoint/UI mappings, edge cases, test coverage, and readiness result. The
+  current checkout lacks `.venv`, `frontend/node_modules`, and the saved upload
+  model artifact, so pytest/build/live-browser verification could not be
+  reproduced. The audit identifies the Vite `/upload` proxy omission, active
+  contractor-view routing regression, API-contract upload mismatch, and
+  mojibake as blockers before the formal Module 8 end-to-end pass.
+
 - On 2026-09-10, the user requested a full SIH presentation and live-demo plan,
   with repository context updates and a commit. `docs/SIH_PRESENTATION_AND_LIVE_DEMO_PLAN.md`
   now provides the judge-facing narrative, timed slide sequence, primary and
