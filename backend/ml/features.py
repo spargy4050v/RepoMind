@@ -123,13 +123,13 @@ def postgis_geo_cluster_density(project_ids: pd.Series, dsn: str) -> pd.Series:
     return project_ids.map(values).fillna(0).astype("float64")
 
 
-def build_feature_matrix(csv_path: str | Path = DATASET_PATH, postgis_dsn: str | None = None) -> pd.DataFrame:
-    """Return ``project_id`` plus exactly seven finite, unlabeled Module 2 numerical features.
+def build_feature_matrix_from_frame(source: pd.DataFrame, postgis_dsn: str | None = None) -> pd.DataFrame:
+    """Build the seven unlabeled features from project records already loaded in memory.
 
-    Passing ``postgis_dsn`` selects the production PostGIS density query. Omitting it selects the documented
-    exact-distance local fallback so the checked-in CSV can be validated offline before database ingestion.
+    This is the shared preprocessing path for batch training and a raw uploaded
+    project. Passing ``postgis_dsn`` selects the production PostGIS density
+    query; otherwise the documented local exact-distance fallback is used.
     """
-    source = load_project_data(csv_path)
     required = {
         "project_id", "sanctioned_cost_inr", "regional_baseline_cost_inr", "start_date",
         "completion_certified_date", "fund_release_date", "planned_duration_days", "contractor_id",
@@ -156,3 +156,8 @@ def build_feature_matrix(csv_path: str | Path = DATASET_PATH, postgis_dsn: str |
     numeric = list(FEATURE_COLUMNS)
     features[numeric] = features[numeric].replace([np.inf, -np.inf], np.nan).fillna(0.0).astype("float64")
     return features[["project_id", *FEATURE_COLUMNS]]
+
+
+def build_feature_matrix(csv_path: str | Path = DATASET_PATH, postgis_dsn: str | None = None) -> pd.DataFrame:
+    """Return ``project_id`` plus exactly seven finite, unlabeled Module 2 numerical features."""
+    return build_feature_matrix_from_frame(load_project_data(csv_path), postgis_dsn)

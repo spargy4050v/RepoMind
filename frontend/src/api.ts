@@ -43,6 +43,15 @@ export interface ProjectDetail extends ProjectListItem {
   nearby_projects: string[];
 }
 
+export interface ContractorDetail {
+  contractor_id: string;
+  total_projects: number;
+  avg_risk_score: number;
+  flagged_project_count: number;
+  constituencies: string[];
+  projects: string[];
+}
+
 export interface ProjectFilters {
   page: number;
   pageSize: number;
@@ -83,4 +92,8 @@ export function getSummary(): Promise<Summary> {
 
 export function getProject(projectId: string): Promise<ProjectDetail> {
   return request<ProjectDetail>(`/projects/${encodeURIComponent(projectId)}`);
+}
+
+export function getContractor(contractorId: string): Promise<ContractorDetail> {
+  return request<ContractorDetail>(`/contractors/${encodeURIComponent(contractorId)}`);
 }

@@ -44,6 +44,18 @@ MPLAD Trace is an SIH 2026 explainable fraud/anomaly-detection project for MPLAD
 - `frontend/src/risk.ts` is the single risk-tier source: green <40, amber 40--70, red >70.
 - `npm run build` completes successfully.
 
+### Module 6 completed and validated
+
+- `frontend/src/ProjectDetail.tsx` consumes the documented `GET /projects/{project_id}` response without changing the API contract.
+- The project list opens the detail view, which presents coded reasons, risk tier, review facts, project timeline, coordinates, nearby-project count, and synthetic Tier 2 labelling.
+- `npm run build` completes successfully.
+
+### Module 7 completed and validated
+
+- `frontend/src/ContractorView.tsx` consumes the documented `GET /contractors/{contractor_id}` response without changing the API contract.
+- The contractor field in project detail opens a synthetic contractor portfolio with average-risk tier, flagged count, constituency footprint, and links to its project cluster.
+- `npm run build` completes successfully.
+
 ### Production database state
 
 - `backend/schema.sql` contains the Postgres + PostGIS two-tier schema and production `ST_DWithin` density design.
@@ -52,12 +64,11 @@ MPLAD Trace is an SIH 2026 explainable fraud/anomaly-detection project for MPLAD
 
 ## Active module and next action
 
-Module 5 is complete. Module 6 is now the active module.
+Module 7 is complete. Module 8 is now the active module.
 
 Next permitted work:
 
-1. Implement the project-detail view against the completed API contract.
-2. Reuse the shared frontend risk tiers: green <40, amber 40--70, red >70.
+1. Perform the end-to-end test pass across the dashboard and API.
 
 ## Recent structural decisions
 
@@ -67,4 +78,4 @@ Next permitted work:
 
 ## Pending user instruction
 
-Implement the Module 6 project detail view only after the user requests the next phase.
+Perform the Module 8 end-to-end test pass only after the user requests the next phase.

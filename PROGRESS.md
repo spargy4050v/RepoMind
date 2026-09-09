@@ -9,8 +9,8 @@ Update this after every module. Do not start a later module until the prior modu
 | 3. Anomaly Scoring Engine | Done | Yes | - | Deterministic NumPy Isolation Forest + explainable rules; top-20% precision 79.17%, recall 83.33%, with labels used only for test evaluation. |
 | 4. FastAPI Service | Done | Yes | - | Local synthetic Tier 2 FastAPI service; contract tests cover list, detail, contractor, summary, rescan, and error responses. |
 | 5. Dashboard Shell + Project List | Done | Yes | - | React/Vite/Tailwind dashboard consumes the Module 4 contract; `npm run build` passes. |
-| 6. Project Detail View | Not started | - | - | |
-| 7. Contractor Cluster View | Not started | - | - | |
+| 6. Project Detail View | Done | Yes | - | API-backed reason, fact, location, nearby-project, and timeline review view; `npm run build` passes. |
+| 7. Contractor Cluster View | Done | Yes | - | API-backed contractor portfolio, constituency footprint, and navigable project cluster; `npm run build` passes. |
 | 8. End-to-End Test Pass | Not started | - | - | |
 | 9. Live Demo Moment | Not started | - | - | |
 | 10. Pitch Deck Alignment | Not started | - | - | |

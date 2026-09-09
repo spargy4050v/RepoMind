@@ -85,7 +85,21 @@ Output: `frontend/` React/Vite/Tailwind application.
 - [x] The dashboard keeps synthetic Tier 2 labelling visible and uses shared risk tiers: green <40, amber 40-70, red >70.
 - [x] `npm run build` passes.
 
-## Modules 6-7: Detail view, contractor view - not started
+## Module 6: Project Detail View - done
+
+Output: `frontend/src/ProjectDetail.tsx`.
+
+- [x] Project IDs in the Module 5 list open the documented `GET /projects/{project_id}` detail response.
+- [x] The view displays coded human-readable reasons, review facts, timeline, local-demo nearby-project count, and a visible synthetic Tier 2 disclaimer.
+- [x] The view reuses the shared risk-tier source and `npm run build` passes.
+
+## Module 7: Contractor Cluster View - done
+
+Output: `frontend/src/ContractorView.tsx`.
+
+- [x] The view reads the documented `GET /contractors/{contractor_id}` response without changing the API contract.
+- [x] It displays the synthetic contractor portfolio, average risk tier, flagged count, constituency footprint, and navigable project cluster.
+- [x] `npm run build` passes.
 
 These React/Tailwind modules begin only after the API contract is implemented and tested.
 

@@ -68,6 +68,25 @@ npm run dev
 ```
 
 Open `http://localhost:5173`. The Module 5 dashboard is a React/Vite/Tailwind
-project list with summary cards, API-backed filters, sort controls, pagination,
-and shared risk tiers. It continues to label all project-level data as
+project list, project-detail, and contractor-cluster views with summary cards,
+API-backed filters, sort controls, pagination, coded explanations, and shared risk tiers. It continues to label all project-level data as
 calibrated **synthetic Tier 2** data.
+
+## Score one uploaded scheme
+
+Train and save the local unlabeled detector artifact explicitly (never on an upload):
+
+```powershell
+python -m backend.ml.train_models
+```
+
+Then score an exactly-one-row CSV using the saved models:
+
+```powershell
+python -m backend.ml.inference path\to\uploaded_scheme.csv
+```
+
+The upload may contain all seven engineered feature columns, or the complete
+raw project fields required by `backend.ml.features`. Missing and non-finite
+values are rejected; values outside the training range are reported as
+data-quality review reasons. This CLI runs inference only and never retrains.
