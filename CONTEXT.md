@@ -98,6 +98,14 @@ Perform the Module 8 end-to-end test pass only after the user requests the next 
 
 ## Context maintenance
 
+- On 2026-09-10, the user requested a full SIH presentation and live-demo plan,
+  with repository context updates and a commit. `docs/SIH_PRESENTATION_AND_LIVE_DEMO_PLAN.md`
+  now provides the judge-facing narrative, timed slide sequence, primary and
+  fallback local demo scripts, provenance guardrails, rehearsal runbook, roles,
+  likely questions, and acceptance checklist. It intentionally leaves Module 8
+  formally unverified; its runbook identifies the end-to-end checks required
+  before presenting the new upload path.
+
 - On 2026-09-09, the user requested that this handoff record be updated for
   every prompt and that completed working-tree changes be pushed to Git.
 - On 2026-09-09, the user authorized 8C ahead of the Module 8 gate: multi-format
