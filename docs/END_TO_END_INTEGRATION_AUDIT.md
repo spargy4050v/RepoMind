@@ -232,20 +232,25 @@ frontend build. Those are historical results, not present-checkout verification.
 
 ## Required remediation order
 
-1. Add `/upload` to Vite’s local proxy, or consistently configure
-   `VITE_API_BASE_URL`. Reconcile API contract wording with actual raw-byte
-   plus `X-Filename` implementation, or implement multipart across both sides.
-2. Restore the active contractor workflow or remove it from product claims.
-   Remove unreachable legacy code instead of masking it with `@ts-nocheck`.
-3. Repair visible encoding corruption before screenshots, recordings, or stage
-   demos.
-4. Create `.venv`, install backend/frontend dependencies, and run the documented
-   local training command to create the upload model artifact.
-5. Add tests for extraction, confirmed scoring/persistence, proxy integration,
-   and active UI navigation.
-6. Run Module 8 from cold start: full pytest, production build, authenticated
-   browser path, upload CSV happy/error cases, and PostGIS loader/query check
-   where local PostGIS is available.
+1. **Done (2026-09-10):** `/upload` is proxied to the local API when
+   `VITE_API_BASE_URL` is unset. Extraction now uses documented
+   `multipart/form-data` with a `file` part on both client and server; a
+   TestClient CSV request returned `200` and parsed `UPLOAD-LIVE-001`.
+2. **Done (2026-09-10):** the active Risk Intelligence project analysis links
+   to the restored contractor portfolio view. The unreachable legacy branch
+   and its `@ts-nocheck` suppression were removed.
+3. **Done (2026-09-10):** repository search found no literal corrupted rupee
+   or arrow sequences in source. Project CSV reads now explicitly declare
+   UTF-8; FastAPI JSON responses use UTF-8 by default.
+4. **Done (2026-09-10):** `.venv`, frontend dependencies, and
+   `models/anomaly_detectors.pkl` were created locally. The training command
+   saved an artifact trained on 3,000 synthetic Tier 2 records.
+5. **Done (2026-09-10):** `tests/test_inference_portfolio_context.py` proves a
+   raw upload obtains contextual contractor, constituency, and geographic
+   features from the existing label-free portfolio rather than one-row values.
+6. **Partially done (2026-09-10):** pytest and the production frontend build
+   pass, and the authenticated HTTP path was exercised. No local PostGIS
+   service was available, so the loader/query runtime check remains required.
 
 Only after these checks pass should MPLAD Trace be described as fully
 end-to-end verified for an SIH live demonstration.

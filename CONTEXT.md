@@ -68,7 +68,9 @@ Module 7 is complete. Module 8 is now the active module.
 
 Next permitted work:
 
-1. Perform the end-to-end test pass across the dashboard and API.
+1. Complete the remaining Module 8 gate on the presentation machine: local
+   PostGIS loader/query verification where available, then five consecutive
+   full demo rehearsals.
 
 ## Recent structural decisions
 
@@ -78,9 +80,30 @@ Next permitted work:
 
 ## Pending user instruction
 
-Perform the Module 8 end-to-end test pass only after the user requests the next phase.
+The Module 8 remediation and executable API/build checks are complete. Await
+the presentation-machine PostGIS check and rehearsal results before marking
+Module 8 fully done.
 
 ## Current maintenance work
+
+- On 2026-09-10, the Module 8 remediation pass created `.venv`, installed the
+  backend/frontend dependencies, and ran `python -m backend.ml.train_models`.
+  This created `models/anomaly_detectors.pkl` from 3,000 synthetic Tier 2
+  records. The saved raw-upload path was verified to append the record to the
+  stored label-free portfolio and reuse `build_feature_matrix_from_frame`; the
+  dedicated regression test asserts real contractor, constituency, and 2 km
+  geographic context instead of isolated one-row defaults.
+- On 2026-09-10, `/upload` was added to the Vite proxy and extraction was
+  standardized on multipart form data (`file` part). `python-multipart` is now
+  an explicit backend dependency. A multipart CSV extraction returned HTTP 200
+  and parsing succeeded; a live authenticated score request also returned HTTP
+  200. The active project analysis now links to the restored contractor view,
+  and the obsolete unreachable `@ts-nocheck` branch was removed.
+- On 2026-09-10, all application CSV reads were made explicitly UTF-8. A
+  repository search found no literal mojibake sequences in source. Verification
+  after remediation: `25 passed, 2 warnings in 20.49s`; `npm run build`
+  completed successfully. A local PostGIS runtime was unavailable, so its
+  loader/query check remains outstanding before the competition demo.
 
 - The user requested a bug-fix pass before Module 8. The duplicate root-level
   pytest diagnostic was moved to `scripts/evaluate_anomaly_detection.py` so it

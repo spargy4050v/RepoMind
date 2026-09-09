@@ -79,7 +79,7 @@ def _from_text(text: str, *, low: bool) -> tuple[dict[str, str], dict[str, Liter
 
 
 def _tabular(data: bytes, suffix: str) -> tuple[dict[str, str], dict[str, Literal["high", "low"]], list[list[str]]]:
-    frame = pd.read_csv(io.BytesIO(data), header=None) if suffix == ".csv" else pd.read_excel(io.BytesIO(data), header=None)
+    frame = pd.read_csv(io.BytesIO(data), header=None, encoding="utf-8") if suffix == ".csv" else pd.read_excel(io.BytesIO(data), header=None)
     frame = frame.dropna(axis=0, how="all").dropna(axis=1, how="all")
     if frame.empty:
         return {}, {}, []

@@ -22,7 +22,7 @@ PROJECT_COLUMNS: Final[tuple[str, ...]] = (
 
 def load_synthetic_projects(dsn: str, csv_path: Path = DATASET_PATH) -> int:
     """Replace Tier 2 tables with CSV records and PostGIS geography points for local production validation."""
-    source = pd.read_csv(csv_path)
+    source = pd.read_csv(csv_path, encoding="utf-8")
     missing = sorted(set(PROJECT_COLUMNS).difference(source.columns))
     if missing:
         raise ValueError(f"Synthetic project CSV is missing columns: {', '.join(missing)}")

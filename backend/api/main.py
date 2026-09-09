@@ -14,7 +14,7 @@ from typing import Annotated, Final, Literal
 
 import numpy as np
 import pandas as pd
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -150,7 +150,7 @@ async def validation_error_handler(_: Request, exc: RequestValidationError) -> J
 @lru_cache(maxsize=1)
 def _project_table() -> pd.DataFrame:
     """Load displayable synthetic records while excluding evaluation-only ground-truth fields."""
-    source = pd.read_csv(DATASET_PATH)
+    source = pd.read_csv(DATASET_PATH, encoding="utf-8")
     return source.loc[:, [column for column in source.columns if not column.startswith("_ground_truth_")]].copy()
 
 
@@ -443,18 +443,17 @@ def _deterministic_story(record: dict[str, object], result: dict[str, object]) -
 
 
 @app.post("/upload/extract")
-async def extract_file(request: Request) -> dict[str, object]:
+async def extract_file(file: Annotated[UploadFile, File(...)]) -> dict[str, object]:
     """Extract a single file for editable review; this endpoint never scores it.
 
-    The browser posts raw file bytes with ``X-Filename`` so the local service
-    avoids a required multipart runtime dependency while retaining the same
-    one-file upload semantics.
+    Browser uploads use the conventional ``multipart/form-data`` ``file`` part,
+    preserving its filename and avoiding a custom transport convention.
     """
-    filename = request.headers.get("X-Filename", "")
+    filename = file.filename or ""
     if not filename:
-        raise HTTPException(status_code=422, detail="Upload must include an X-Filename header")
+        raise HTTPException(status_code=422, detail="Upload must include a file with a filename")
     try:
-        extracted = extract_upload(filename, await request.body())
+        extracted = extract_upload(filename, await file.read())
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
     return {"format": extracted.format, "record": extracted.record, "confidence": extracted.confidence, "source": extracted.source}

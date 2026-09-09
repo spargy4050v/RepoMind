@@ -10,6 +10,7 @@ export default defineConfig({
       "/verify": "http://localhost:8000",
       "/analysis": "http://localhost:8000",
       "/history": "http://localhost:8000",
+      "/upload": "http://localhost:8000",
       "/projects": "http://localhost:8000",
       "/stats": "http://localhost:8000",
       "/contractors": "http://localhost:8000",

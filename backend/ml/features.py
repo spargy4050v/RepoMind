@@ -29,7 +29,7 @@ EARTH_RADIUS_METRES: Final[float] = 6_371_008.8
 
 def load_project_data(csv_path: str | Path = DATASET_PATH) -> pd.DataFrame:
     """Load the synthetic Tier 2 project CSV without treating labels as features."""
-    return pd.read_csv(csv_path)
+    return pd.read_csv(csv_path, encoding="utf-8")
 
 
 def cost_ratio(frame: pd.DataFrame) -> pd.Series:

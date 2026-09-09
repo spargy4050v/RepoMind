@@ -171,7 +171,13 @@ def _validate_raw_project_frame(frame: pd.DataFrame) -> None:
 
 
 def _prepare_features(frame: pd.DataFrame, bundle: ModelBundle) -> pd.DataFrame:
-    """Reuse feature engineering for raw project records, or validate already-engineered uploads."""
+    """Build upload features against the saved unlabeled portfolio context.
+
+    Raw records are appended to the label-free training portfolio before using
+    the same batch feature builder as model training. This preserves contractor
+    history, constituency concentration, and 2 km geographic density instead
+    of manufacturing one-record defaults.
+    """
     supplied_features = [column for column in FEATURE_COLUMNS if column in frame.columns]
     if supplied_features:
         _validate_feature_frame(frame)
@@ -238,9 +244,10 @@ def score_uploaded_scheme(
 ) -> dict[str, object]:
     """Load pre-trained models and return an explainable fraud-review verdict for one uploaded scheme.
 
-    Direct uploads must supply all seven ``FEATURE_COLUMNS`` and may not contain
-    missing values. Raw records are sent through the shared feature builder;
-    contextual count/density features should be supplied directly when known.
+    Feature-ready uploads must supply all seven ``FEATURE_COLUMNS``. Raw
+    records are appended to the saved unlabeled portfolio and passed through
+    the shared batch feature builder, so contextual features use real portfolio
+    history without ever reading evaluation-only ground-truth fields.
     """
     bundle = load_model_bundle(model_path)
     features = _prepare_features(_as_one_row_frame(input_data), bundle)
@@ -258,7 +265,14 @@ def score_uploaded_scheme(
         if len(reasons) >= verdict_config.max_reasons:
             break
         reasons.append(f"Data-quality review: {issue}")
-    return {**signal, "verdict": verdict, "confidence": confidence, "reasons": reasons[: verdict_config.max_reasons], "data_quality_issues": quality_issues}
+    return {
+        **signal,
+        "verdict": verdict,
+        "confidence": confidence,
+        "reasons": reasons[: verdict_config.max_reasons],
+        "data_quality_issues": quality_issues,
+        "feature_values": {column: float(features.iloc[0][column]) for column in FEATURE_COLUMNS},
+    }
 
 
 def main() -> None:
@@ -269,7 +283,7 @@ def main() -> None:
     args = parser.parse_args()
     if not args.csv_path.is_file():
         raise FileNotFoundError(f"Upload CSV was not found: {args.csv_path}")
-    print(json.dumps(score_uploaded_scheme(pd.read_csv(args.csv_path), model_path=args.model_path), indent=2))
+    print(json.dumps(score_uploaded_scheme(pd.read_csv(args.csv_path, encoding="utf-8"), model_path=args.model_path), indent=2))
 
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ Update this after every module. Do not start a later module until the prior modu
 | 5. Dashboard Shell + Project List | Done | Yes | - | React/Vite/Tailwind dashboard consumes the Module 4 contract; `npm run build` passes. |
 | 6. Project Detail View | Done | Yes | - | API-backed reason, fact, location, nearby-project, and timeline review view; `npm run build` passes. |
 | 7. Contractor Cluster View | Done | Yes | - | API-backed contractor portfolio, constituency footprint, and navigable project cluster; `npm run build` passes. |
-| 8. End-to-End Test Pass | Not started | - | - | |
+| 8. End-to-End Test Pass | In progress | Partially verified | - | 25 pytest cases pass, production frontend build passes, and the authenticated upload/score API path was exercised. Local PostGIS loader/query runtime verification and five consecutive demo rehearsals remain. |
 | 8A. Demo access, verification, analytics, audit history, and optional context | In progress ahead of Module 8 gate | Backend yes; UI manual pass pending | - | User-authorized; Module 8 remains formally unverified. Local demo auth, upload verification, analysis, history, and optional public-context status are implemented without model changes or required external services. |
 | 8B. Risk Intelligence Engine redesign | In progress ahead of Module 8 gate | - | - | User-authorized persistent five-view redesign with live simulator and alerts; Module 8 remains formally unverified. |
 | 8C. Multi-format upload and narrative review | In progress ahead of Module 8 gate | - | - | User-authorized; local extraction and reviewer confirmation must use the existing raw validation and scorer. |
