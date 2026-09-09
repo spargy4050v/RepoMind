@@ -21,6 +21,7 @@ dist/
 # Local configuration
 .env
 .env.local
+data/demo_access.sqlite3
 
 # OS files
 .DS_Store
