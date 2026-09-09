@@ -86,6 +86,37 @@ Module 8 fully done.
 
 ## Current maintenance work
 
+- On 2026-09-10, a navigation/workflow audit fixed active Risk Analysis
+  routing: every Overview, Projects, and Alerts `Review` action now selects
+  the project and activates the analysis tab. Risk Analysis and the
+  contractor-return Project Detail view expose the same persisted alert-status
+  control, backed by `PATCH /alerts/{alert_id}`. The active dashboard now also
+  exposes its existing persisted upload history/results, so document uploads
+  remain findable after leaving the upload screen. Detector agreement is now
+  coded as `detector_agreement` and labelled "Confirmed by Multiple Detectors"
+  rather than `no_material_warning`. The full suite passed with `27 passed` and
+  the frontend build passed; these changes remain uncommitted pending review.
+
+- On 2026-09-10, the scorer ceiling was diagnosed from all 3,000 synthetic
+  Tier 2 records. The detector signals were continuous and the rule layer was
+  capped, but a +10 post-blend bonus for Isolation Forest/LOF agreement drove
+  six severe rows above 100 before `clip`, collapsing them to 100. The bonus
+  was removed; agreement remains in the explicit explanation. Afterward all
+  3,000 scores are distinct, the maximum is 97.185, and top-20% precision /
+  recall remain 79.33% / 83.51%. The full suite passed with `26 passed`.
+  These scorer changes, like the pending visual redesign, remain uncommitted
+  pending user review.
+
+- On 2026-09-10, a user-requested frontend-only visual-system pass replaced
+  the dark/cyan dashboard treatment with a light slate, blue-action, and
+  risk-semantic green/amber/red system. Shadcn-compatible Radix primitives and
+  utilities were added locally for buttons, cards, badges, inputs, selects,
+  tables, tabs, and dialogs. Upload, dashboard, project detail, and contractor
+  screens use normal flex/grid flow; the detached sign-out and overlapping
+  upload return control were removed. `npm run build` passed. These changes
+  are intentionally uncommitted pending user review. Browser screenshot
+  inspection was unavailable in the current automation session.
+
 - On 2026-09-10, the Module 8 remediation pass created `.venv`, installed the
   backend/frontend dependencies, and ran `python -m backend.ml.train_models`.
   This created `models/anomaly_detectors.pkl` from 3,000 synthetic Tier 2

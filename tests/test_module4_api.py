@@ -7,6 +7,7 @@ import backend.api.main as api_module
 import secrets
 
 from backend.api.main import app
+from backend.api.main import _reason_code
 
 
 client = TestClient(app)
@@ -42,6 +43,11 @@ def test_project_detail_includes_coded_reasons_and_contract_error_shape() -> Non
     missing = client.get("/projects/not-a-project", headers=headers)
     assert missing.status_code == 404
     assert missing.json()["error"]
+
+
+def test_detector_agreement_uses_a_positive_corroboration_reason_code() -> None:
+    """Two independent detector flags must not be presented as no warning."""
+    assert _reason_code("Flagged by both isolation-based and neighborhood-based detection.") == "detector_agreement"
 
 
 def test_summary_contractor_and_rescan_endpoints() -> None:
@@ -119,3 +125,6 @@ def test_simulator_and_persisted_alert_statuses_use_live_scoring() -> None:
     updated = client.patch(f"/alerts/{alert['alert_id']}", json={"status": "under_review"}, headers=headers)
     assert updated.status_code == 200
     assert updated.json()["status"] == "under_review"
+    refreshed = client.get("/alerts", headers=headers)
+    assert refreshed.status_code == 200
+    assert next(item for item in refreshed.json() if item["alert_id"] == alert["alert_id"])["status"] == "under_review"

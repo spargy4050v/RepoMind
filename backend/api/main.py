@@ -175,6 +175,12 @@ def _reason_code(text: str) -> str:
         return "geographic_clustering"
     if text.startswith("Sanction followed"):
         return "sanction_lag"
+    if text.startswith("Flagged by both isolation-based and neighborhood-based"):
+        return "detector_agreement"
+    if text.startswith("Flagged by isolation-based"):
+        return "isolation_detector_signal"
+    if text.startswith("Flagged by neighborhood-based"):
+        return "neighborhood_detector_signal"
     return "no_material_warning"
 
 

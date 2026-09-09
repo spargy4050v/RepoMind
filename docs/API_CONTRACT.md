@@ -48,6 +48,10 @@ Authenticated what-if endpoint. Body supplies one or more of the seven documente
 ## GET /alerts
 Returns persisted alerts seeded from current amber/red synthetic projects. Query params: `status` (`new`, `under_review`, `investigating`, `resolved`) and `search`. Each result includes `alert_id`, `project_id`, `anomaly_type`, `risk_score`, `severity`, and persisted `status`.
 
+Reason objects use stable codes. In particular, `detector_agreement` means both
+the isolation-based and neighborhood-based detectors flagged the project; it
+is a corroborating review signal, not a no-warning result.
+
 ## PATCH /alerts/{alert_id}
 Authenticated body: `{"status":"under_review"}`. Updates a persisted alert status and returns the updated alert. Valid statuses are `new`, `under_review`, `investigating`, and `resolved`.
 

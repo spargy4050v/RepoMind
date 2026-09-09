@@ -62,10 +62,12 @@ def score_feature_matrix(features: pd.DataFrame) -> pd.DataFrame:
     """Score a Module 2 matrix and attach one or more specific reasons to every project.
 
     Scores weight the primary Isolation Forest more heavily than the LOF
-    cross-check, blend those signals with rule severity, and add a confidence
-    bonus when both detectors agree. A low-scoring project still receives an
-    explicit normal-pattern explanation, preventing a bare numerical score
-    from reaching a reviewer.
+    cross-check, then blend those continuous signals with capped rule severity.
+    Detector agreement remains reviewer-visible in its specific explanation,
+    rather than adding a post-scale bonus that could push severe rows above 100
+    and collapse their relative severity through clipping. A low-scoring
+    project still receives an explicit normal-pattern explanation, preventing
+    a bare numerical score from reaching a reviewer.
     """
     expected = ["project_id", *FEATURE_COLUMNS]
     if list(features.columns) != expected:
@@ -82,8 +84,10 @@ def score_feature_matrix(features: pd.DataFrame) -> pd.DataFrame:
     lof_scores = model_signals["lof_score"].to_numpy(dtype=float)
     forest_scaled = (forest - forest.min()) / max(float(forest.max() - forest.min()), np.finfo(float).eps)
     lof_scaled = (lof_scores - lof_scores.min()) / max(float(lof_scores.max() - lof_scores.min()), np.finfo(float).eps)
-    agreement_bonus = model_signals["flagged_by_both"].to_numpy(dtype=float) * 10.0
-    scores = np.clip(100.0 * (0.35 * forest_scaled + 0.05 * lof_scaled + 0.60 * rule_scores) + agreement_bonus, 0.0, 100.0)
+    # All components are in [0, 1] and the weights sum to one. Keeping the
+    # agreement signal in ``reason_text`` avoids a post-blend bonus that would
+    # exceed the 0--100 scale and make different severe projects all read 100.
+    scores = 100.0 * (0.35 * forest_scaled + 0.05 * lof_scaled + 0.60 * rule_scores)
     all_reasons = features.apply(suspicious_reasons, axis=1)
     reason_text = [
         reasons + [str(model_signals.iloc[index]["reason"])]

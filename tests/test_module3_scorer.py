@@ -23,6 +23,17 @@ def test_scorer_returns_bounded_scores_and_specific_reasons() -> None:
     assert scored[REASONS_COLUMN].map(lambda reasons: isinstance(reasons, list) and len(reasons) > 0).all()
 
 
+def test_scorer_preserves_distinct_severe_scores_without_ceiling_clipping() -> None:
+    """Severe review records retain rank detail instead of collapsing to 100.
+
+    A post-blend agreement bonus previously exceeded the bounded score scale
+    for several rows, erasing the distinction between very severe signals.
+    """
+    scores = score_projects(str(DATASET))[RISK_SCORE_COLUMN]
+    assert int((scores == 100).sum()) == 0
+    assert scores.nunique() == len(scores)
+
+
 def test_ground_truth_columns_cannot_be_used_as_scorer_input() -> None:
     """The scorer's strict Module 2 matrix contract prevents label leakage."""
     source = pd.read_csv(DATASET)
