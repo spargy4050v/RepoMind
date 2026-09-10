@@ -48,6 +48,20 @@ Pass a connection string with `--dsn` when the database is not the local default
 The Module 2 CSV test path uses an exact great-circle 2km fallback so it can
 run offline before ingestion; production density uses PostGIS `ST_DWithin`.
 
+## Before demo day
+
+Use the verified `postgis/postgis:16-3.4` image for the local production
+spatial check. After starting the container and applying `backend/schema.sql`, run:
+
+```powershell
+.venv\Scripts\python.exe scripts\verify_postgis_integration.py
+```
+
+The verifier reloads the calibrated **synthetic Tier 2** CSV, validates the
+PostGIS `ST_DWithin` path, compares it with the offline Haversine fallback,
+and checks scorer precision/recall and score saturation. It leaves the
+container running.
+
 Follow `BUILD_PLAN.md` and `PROGRESS.md` strictly. The explainable local scorer,
 local API, project dashboard, project detail view, and contractor cluster view
 are available. Module 8 end-to-end verification is the next planned phase.

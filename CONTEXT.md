@@ -61,6 +61,7 @@ MPLAD Trace is an SIH 2026 explainable fraud/anomaly-detection project for MPLAD
 - `backend/schema.sql` contains the Postgres + PostGIS two-tier schema and production `ST_DWithin` density design.
 - The CSV-only feature test path uses an exact great-circle 2km fallback with equivalent inclusion/exclusion semantics. It is explicitly not the production implementation.
 - Verified on 2026-09-07 with a local PostGIS 3.4.3 container: schema applied, all 3,000 projects loaded, and `build_feature_matrix(postgis_dsn=...)` returned 3,000 finite rows through its production `ST_DWithin` query. Two density counts differ from the Haversine fallback at the radius boundary because PostGIS geography uses its geodetic distance model.
+- Re-verified on 2026-09-10 using `postgis/postgis:16-3.4` (PostGIS 3.4.3): `backend/schema.sql` applied successfully, `backend.load_postgis` loaded exactly 3,000 calibrated synthetic Tier 2 projects, and `scripts/verify_postgis_integration.py` passed. The top 10 `ST_DWithin` counts were 15; the PostGIS feature matrix was `(3000, 8)` with only finite values; `geo_cluster_density` had mean 0.840667 and max 15. The first 10 project IDs matched the CSV Haversine fallback exactly. PostGIS-scored top-20% precision/recall were 79.33%/83.51%, and there were zero exact-100 scores. As previously noted, small boundary differences versus Haversine are expected because PostGIS geography uses geodetic distance.
 
 ## Active module and next action
 
