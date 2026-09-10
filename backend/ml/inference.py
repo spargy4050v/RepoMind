@@ -287,4 +287,10 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    # ``python -m backend.ml.inference`` executes this file as ``__main__``.
+    # Loading the joblib bundle then imports ``backend.ml.inference.ModelBundle``,
+    # which would otherwise be a second class object and fail the strict bundle
+    # validation. Run the package-qualified entry point instead.
+    from backend.ml.inference import main as packaged_main
+
+    packaged_main()

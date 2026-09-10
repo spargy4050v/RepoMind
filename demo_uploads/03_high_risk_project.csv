@@ -1,0 +1,2 @@
+project_id,mp_constituency,state,work_category,contractor_id,sanctioned_cost_inr,regional_baseline_cost_inr,recommended_date,sanction_date,start_date,completion_certified_date,fund_release_date,planned_duration_days,latitude,longitude
+DEMO-HIGH-003,Nalgonda,Telangana,Health Sub-Centre,CTR-0001,18000000.00,2000000.00,2023-01-01,2023-07-20,2023-08-01,2023-08-06,2023-05-23,150,17.4200,78.5200

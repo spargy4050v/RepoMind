@@ -1,0 +1,2 @@
+project_id,mp_constituency,state,work_category,contractor_id,sanctioned_cost_inr,regional_baseline_cost_inr,recommended_date,sanction_date,start_date,completion_certified_date,fund_release_date,planned_duration_days,latitude,longitude
+DEMO-NORMAL-001,Warangal,Telangana,Street Lighting,CTR-0009,234849.19,256500.00,2022-02-24,2022-05-21,2022-06-07,2022-06-27,2022-07-26,17,17.3195,78.4492
